@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title id="page-title">VerificApel — Verifică cine sună și raportează apeluri</title>
+  <meta
+    id="page-description"
+    name="description"
+    content="Verifică numere de telefon din România și internaționale, vezi evaluările comunității, clasifică rapid apelul și lasă o experiență utilă fără înregistrare."
+  />
+  <meta name="theme-color" content="#0f172a" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="json-ld" type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "VerificApel",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "All",
+      "inLanguage": "ro"
+    }
+  </script>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Header mobil -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 border-b border-slate-800 shadow-sm">
+    <div class="max-w-xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+      <a href="#top" id="brand-logo" class="flex items-center gap-2.5 font-bold text-lg tracking-tight shrink-0">
+        <span class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm shadow">
+          📞
+        </span>
+        <span>VerificApel</span>
+      </a>
+
+      <nav class="hidden sm:flex items-center gap-4 text-xs font-medium text-slate-300">
+        <a href="#clasificare" class="hover:text-white transition">Clasifică</a>
+        <a href="#comentarii" class="hover:text-white transition">Comentarii</a>
+        <a href="#recente" class="hover:text-white transition">Recente</a>
+        <a href="#cum-functioneaza" class="hover:text-white transition">Info</a>
+      </nav>
+
+      <button
+        id="menu-toggle"
+        type="button"
+        aria-label="Deschide meniul"
+        aria-expanded="false"
+        class="sm:hidden w-10 h-10 rounded-lg border border-slate-700 hover:bg-slate-800 active:scale-95 flex items-center justify-center text-slate-200 transition"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Meniu dropdown mobil -->
+    <div id="mobile-menu" class="hidden sm:hidden bg-slate-900 border-t border-slate-800 px-4 py-3">
+      <div class="max-w-xl mx-auto flex flex-col gap-1 text-sm">
+        <a href="#cautare" class="nav-link py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200">🔍 Caută alt număr</a>
+        <a href="#clasificare" class="nav-link py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200">🏷️ Clasifică numărul</a>
+        <a href="#comentarii" class="nav-link py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200">💬 Comentarii (<span id="menu-comment-count">0</span>)</a>
+        <a href="#recente" class="nav-link py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200">🕒 Verificate recent</a>
+        <a href="#cum-functioneaza" class="nav-link py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200">ℹ️ Cum funcționează</a>
+        <a href="#reguli" class="nav-link py-2 px-3 rounded-lg hover:bg-slate-800 text-slate-200">🛡️ Reguli &amp; Confidențialitate</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conținut principal -->
+  <main id="top" class="flex-1 max-w-xl w-full mx-auto px-3.5 py-4 space-y-4">
+
+    <!-- Bară de căutare -->
+    <section id="cautare" class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-3.5">
+      <form id="search-form" class="flex gap-2">
+        <label for="phone-input" class="sr-only">Introdu numărul de telefon</label>
+        <input
+          id="phone-input"
+          type="tel"
+          inputmode="tel"
+          autocomplete="tel"
+          placeholder="Ex: 0799 778 446 sau +44 20 7946..."
+          class="flex-1 min-w-0 h-11 px-3.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 outline-none text-base font-medium text-slate-900 placeholder:text-slate-400 transition"
+        />
+        <button
+          type="submit"
+          class="h-11 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-semibold text-sm shrink-0 shadow-sm transition cursor-pointer"
+        >
+          Verifică
+        </button>
+      </form>
+      <div class="mt-2 flex items-center justify-between gap-2 text-[11px] text-slate-500 px-0.5">
+        <span>Suportă numere RO (`07...`, `+40...`) și internaționale (`+44`, `+49`, `+39`, `00...`).</span>
+        <span id="sync-badge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium shrink-0">
+          ● Mod local
+        </span>
+      </div>
+    </section>
+
+    <!-- Card principal număr -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-4 sm:p-5">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Număr verificat</p>
+          <div class="mt-1 flex items-center gap-2.5">
+            <span class="text-blue-600 text-xl sm:text-2xl leading-none" aria-hidden="true">📞</span>
+            <h1 id="display-phone" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+              0799 778 446
+            </h1>
+          </div>
+        </div>
+        <span id="status-note" class="text-xs text-slate-400 font-medium pt-1">
+          Actualizat
+        </span>
+      </div>
+
+      <!-- Etichete țară, tip linie și evaluare -->
+      <div class="mt-3.5 flex flex-wrap items-center gap-2">
+        <span id="country-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-slate-900 text-white">
+          <span>🇷🇴</span>
+          <span>România</span>
+        </span>
+        <span id="line-type-badge" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-blue-600 text-white">
+          Mobil
+        </span>
+        <span id="prefix-hint-badge" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+          Prefix 0799 (estimare)
+        </span>
+        <span id="rating-badge" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-amber-400 text-slate-950">
+          Neutru
+        </span>
+      </div>
+
+      <p id="rating-subtext" class="mt-2.5 text-sm text-slate-500">
+        Fără evaluare
+      </p>
+
+      <!-- Acțiuni rapide: Copiază număr, Copiază link, Distribuie -->
+      <div class="mt-3.5 grid grid-cols-3 gap-2">
+        <button
+          id="copy-phone-btn"
+          type="button"
+          class="h-9 px-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 active:scale-[0.99] text-xs font-semibold text-slate-700 flex items-center justify-center gap-1.5 transition cursor-pointer"
+        >
+          <span>📋</span>
+          <span id="copy-phone-label">Copiază nr.</span>
+        </button>
+        <button
+          id="copy-link-btn"
+          type="button"
+          class="h-9 px-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 active:scale-[0.99] text-xs font-semibold text-slate-700 flex items-center justify-center gap-1.5 transition cursor-pointer"
+        >
+          <span>🔗</span>
+          <span id="copy-link-label">Copiază link</span>
+        </button>
+        <button
+          id="share-btn"
+          type="button"
+          class="h-9 px-2.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 active:scale-[0.99] text-xs font-semibold text-blue-700 flex items-center justify-center gap-1.5 transition cursor-pointer"
+        >
+          <span>📤</span>
+          <span>Distribuie</span>
+        </button>
+      </div>
+
+      <!-- Casete Vizualizări și Comentarii -->
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-xl border border-slate-200 bg-slate-50/70 py-4 px-3 text-center">
+          <div class="flex items-center justify-center gap-1.5 text-slate-700 font-bold text-xl sm:text-2xl">
+            <span aria-hidden="true">👁️</span>
+            <span id="views-count">1</span>
+          </div>
+          <div class="mt-1 text-xs sm:text-sm font-medium text-slate-500">Vizualizări</div>
+        </div>
+
+        <a href="#comentarii" class="rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-100/80 py-4 px-3 text-center transition block">
+          <div class="flex items-center justify-center gap-1.5 text-slate-700 font-bold text-xl sm:text-2xl">
+            <span aria-hidden="true">💬</span>
+            <span id="comments-count">0</span>
+          </div>
+          <div class="mt-1 text-xs sm:text-sm font-medium text-slate-500">Comentarii</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Slot reclamă / banner responsiv cu înălțime stabilă -->
+    <section aria-label="Reclamă" class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-2.5">
+      <div
+        id="ad-slot"
+        class="min-h-[76px] w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white px-4 py-2.5 flex items-center justify-between gap-3"
+      >
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider bg-black/25 px-1.5 py-0.5 rounded">
+              Sponsorizat
+            </span>
+            <span class="text-xs font-semibold text-white/90 truncate">Spațiu banner mobil</span>
+          </div>
+          <p class="text-sm font-extrabold leading-snug mt-0.5 truncate">
+            Zonă pregătită pentru reclamă / afiliere
+          </p>
+        </div>
+        <a
+          href="#cum-functioneaza"
+          class="shrink-0 px-3 py-2 rounded-lg bg-white text-slate-900 font-bold text-xs shadow hover:bg-slate-100 transition"
+        >
+          Detalii →
+        </a>
+      </div>
+    </section>
+
+    <!-- Clasificare rapidă fără înregistrare -->
+    <section id="clasificare" class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-4 sm:p-5">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-lg" aria-hidden="true">🏷️</span>
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">Clasifică acest număr</h2>
+        </div>
+        <span id="total-votes-label" class="text-xs font-semibold text-slate-500">0 voturi</span>
+      </div>
+
+      <p class="mt-1.5 text-sm text-slate-500 leading-relaxed">
+        Cum evaluezi acest număr? Apasă pentru a-l clasifica (fără înregistrare). Poți schimba sau anula alegerea ta oricând.
+      </p>
+
+      <div id="category-buttons" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+
+      <p id="vote-feedback" class="mt-3 text-xs font-medium text-emerald-700 min-h-[1rem]"></p>
+    </section>
+
+    <!-- Comentarii și experiențe -->
+    <section id="comentarii" class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-4 sm:p-5">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-lg font-bold text-slate-900">Experiențe și comentarii</h2>
+        <span id="comments-badge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+          0 mesaje
+        </span>
+      </div>
+
+      <form id="comment-form" class="mt-3 space-y-2.5">
+        <div class="flex flex-col sm:flex-row gap-2">
+          <label for="comment-category" class="sr-only">Motivul apelului</label>
+          <select
+            id="comment-category"
+            class="sm:w-48 h-10 px-3 rounded-xl border border-slate-300 bg-slate-50 text-sm font-medium text-slate-800 focus:bg-white focus:border-blue-600 outline-none"
+          >
+            <option value="telemarketing">Telemarketing</option>
+            <option value="recuperare">Recuperare creanțe</option>
+            <option value="banca">Bancă / Finanțe</option>
+            <option value="asigurari">Asigurări</option>
+            <option value="spam">Spam / Apel fals</option>
+            <option value="neutru" selected>Neutru / Alt motiv</option>
+          </select>
+
+          <label for="comment-input" class="sr-only">Scrie o observație utilă</label>
+          <input
+            id="comment-input"
+            type="text"
+            maxlength="400"
+            placeholder="Ex: Apel automat despre oferte, fără răspuns..."
+            class="flex-1 min-w-0 h-10 px-3.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-blue-600 outline-none text-sm text-slate-900 placeholder:text-slate-400"
+          />
+        </div>
+
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[11px] text-slate-400">Fără linkuri, date personale sau alte numere de telefon.</span>
+          <button
+            type="submit"
+            class="h-10 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white text-sm font-semibold transition shrink-0 cursor-pointer"
+          >
+            Publică
+          </button>
+        </div>
+      </form>
+
+      <p id="comment-error" class="mt-2 text-xs font-medium text-rose-600 min-h-[1rem]"></p>
+
+      <div id="comments-list" class="mt-3 space-y-2.5"></div>
+    </section>
+
+    <!-- Numere verificate recent -->
+    <section id="recente" class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-4 sm:p-5">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-base font-bold text-slate-900">Verificate recent pe acest dispozitiv</h2>
+        <button
+          id="clear-history-btn"
+          type="button"
+          class="text-xs font-medium text-slate-400 hover:text-rose-600 transition cursor-pointer"
+        >
+          Șterge istoricul
+        </button>
+      </div>
+      <div id="recent-phones" class="mt-3 flex flex-wrap gap-2"></div>
+    </section>
+
+    <!-- Cum funcționează -->
+    <section id="cum-functioneaza" class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-4 sm:p-5 space-y-2">
+      <h2 class="text-base font-bold text-slate-900">Cum funcționează VerificApel</h2>
+      <p class="text-sm text-slate-600 leading-relaxed">
+        Introdu numărul național sau internațional primit pentru a vedea țara estimată, tipul liniei, evaluările exprimate de utilizatori și observațiile lăsate de comunitate.
+      </p>
+      <p class="text-sm text-slate-600 leading-relaxed">
+        Evaluările afișate reflectă rapoartele utilizatorilor și estimările de prefix — verifică întotdeauna sursele oficiale înainte de a oferi date sensibile sau plăți.
+      </p>
+    </section>
+
+    <!-- Reguli & Confidențialitate -->
+    <section id="reguli" class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-4 sm:p-5 space-y-2">
+      <h2 class="text-base font-bold text-slate-900">Reguli &amp; Confidențialitate</h2>
+      <ul class="text-sm text-slate-600 space-y-1.5 list-disc pl-5">
+        <li>Nu publica nume complete, adrese, CNP-uri, linkuri externe sau alte numere de telefon în comentarii.</li>
+        <li>Comentariile abuzive, defăimătoare sau repetitive sunt blocate automat sau eliminate.</li>
+        <li>Când API-ul este activ, voturile, vizualizările și comentariile se sincronizează centralizat; în lipsa lui, se folosește stocarea locală din browser.</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 text-xs py-5 px-4 mt-4 border-t border-slate-800">
+    <div class="max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+      <span>© <span id="year">2026</span> VerificApel — Informare orientativă din rapoarte comunitare.</span>
+      <div class="flex items-center gap-4">
+        <a href="#cum-functioneaza" class="hover:text-white transition">Cum funcționează</a>
+        <a href="#reguli" class="hover:text-white transition">Reguli</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const API_BASE = "/api";
+
+      const COUNTRY_PREFIXES = [
+        { code: "1", name: "SUA / Canada", flag: "🇺🇸" },
+        { code: "40", name: "România", flag: "🇷🇴" },
+        { code: "44", name: "Regatul Unit", flag: "🇬🇧" },
+        { code: "49", name: "Germania", flag: "🇩🇪" },
+        { code: "39", name: "Italia", flag: "🇮🇹" },
+        { code: "33", name: "Franța", flag: "🇫🇷" },
+        { code: "34", name: "Spania", flag: "🇪🇸" },
+        { code: "31", name: "Țările de Jos", flag: "🇳🇱" },
+        { code: "32", name: "Belgia", flag: "🇧🇪" },
+        { code: "43", name: "Austria", flag: "🇦🇹" },
+        { code: "41", name: "Elveția", flag: "🇨🇭" },
+        { code: "36", name: "Ungaria", flag: "🇭🇺" },
+        { code: "359", name: "Bulgaria", flag: "🇧🇬" },
+        { code: "373", name: "Republica Moldova", flag: "🇲🇩" },
+        { code: "48", name: "Polonia", flag: "🇵🇱" },
+        { code: "90", name: "Turcia", flag: "🇹🇷" }
+      ].sort((a, b) => b.code.length - a.code.length);
+
+      const CATEGORIES = [
+        {
+          key: "telemarketing",
+          label: "Telemarketing",
+          icon: "📞",
+          badgeText: "Telemarketing",
+          badgeClass: "bg-amber-100 text-amber-900 border border-amber-300",
+          btnClass: "border-amber-300/90 text-amber-700 hover:bg-amber-50/70",
+          activeClass: "ring-2 ring-amber-500 bg-amber-50/90 border-amber-500 text-amber-900",
+          barClass: "bg-amber-400"
+        },
+        {
+          key: "recuperare",
+          label: "Recuperare creanțe",
+          icon: "🧾",
+          badgeText: "Recuperare creanțe",
+          badgeClass: "bg-rose-100 text-rose-900 border border-rose-300",
+          btnClass: "border-rose-300 text-rose-600 hover:bg-rose-50/60",
+          activeClass: "ring-2 ring-rose-500 bg-rose-50/90 border-rose-500 text-rose-800",
+          barClass: "bg-rose-500"
+        },
+        {
+          key: "banca",
+          label: "Bancă / Finanțe",
+          icon: "🏛️",
+          badgeText: "Bancă / Finanțe",
+          badgeClass: "bg-sky-100 text-sky-900 border border-sky-300",
+          btnClass: "border-sky-200 text-sky-700 hover:bg-sky-50/70",
+          activeClass: "ring-2 ring-sky-500 bg-sky-50/90 border-sky-500 text-sky-900",
+          barClass: "bg-sky-500"
+        },
+        {
+          key: "asigurari",
+          label: "Asigurări",
+          icon: "🛡️",
+          badgeText: "Asigurări",
+          badgeClass: "bg-teal-100 text-teal-900 border border-teal-300",
+          btnClass: "border-teal-200 text-teal-700 hover:bg-teal-50/70",
+          activeClass: "ring-2 ring-teal-500 bg-teal-50/90 border-teal-500 text-teal-900",
+          barClass: "bg-teal-500"
+        },
+        {
+          key: "spam",
+          label: "Spam / Apel fals",
+          icon: "🚫",
+          badgeText: "Spam / Apel fals",
+          badgeClass: "bg-red-100 text-red-900 border border-red-300",
+          btnClass: "border-red-200 text-red-700 hover:bg-red-50/70",
+          activeClass: "ring-2 ring-red-500 bg-red-50/90 border-red-500 text-red-900",
+          barClass: "bg-red-500"
+        },
+        {
+          key: "neutru",
+          label: "Neutru / Normal",
+          icon: "⚖️",
+          badgeText: "Neutru",
+          badgeClass: "bg-amber-400 text-slate-950",
+          btnClass: "border-slate-200 text-slate-700 hover:bg-slate-50",
+          activeClass: "ring-2 ring-slate-700 bg-slate-100 border-slate-700 text-slate-900",
+          barClass: "bg-slate-600"
+        }
+      ];
+
+      const DEFAULT_PHONE = "40799778446";
+      const STORAGE_PREFIX = "verificapel_v2_";
+      const HISTORY_KEY = STORAGE_PREFIX + "history";
+      const VOTER_ID_KEY = STORAGE_PREFIX + "voter_id";
+      const OWN_COMMENTS_KEY = STORAGE_PREFIX + "own_comments";
+
+      const state = {
+        phone: DEFAULT_PHONE,
+        countryCode: "40",
+        countryName: "România",
+        flag: "🇷🇴",
+        views: 0,
+        votes: {},
+        comments: [],
+        activeVote: null,
+        apiOnline: false
+      };
+
+      function getVoterId() {
+        let id = localStorage.getItem(VOTER_ID_KEY);
+        if (!id) {
+          id = "v_" + Math.random().toString(36).slice(2) + "_" + Date.now().toString(36);
+          localStorage.setItem(VOTER_ID_KEY, id);
+        }
+        return id;
+      }
+
+      function parsePhone(raw) {
+        let digits = String(raw || "").replace(/\D/g, "");
+        if (!digits) return null;
+
+        if (digits.startsWith("00")) {
+          digits = digits.slice(2);
+        } else if (/^0[23789]\d{6,10}$/.test(digits)) {
+          digits = "40" + digits.slice(1);
+        }
+
+        digits = digits.slice(0, 15);
+        if (digits.length < 7) return null;
+
+        const matched = COUNTRY_PREFIXES.find((item) => digits.startsWith(item.code));
+        if (matched) {
+          return {
+            phone: digits,
+            countryCode: matched.code,
+            countryName: matched.name,
+            flag: matched.flag
+          };
+        }
+
+        return {
+          phone: digits,
+          countryCode: digits.slice(0, 3),
+          countryName: "Internațional",
+          flag: "🌍"
+        };
+      }
+
+      function formatPhoneDisplay(canonicalDigits) {
+        if (!canonicalDigits) return "0799 778 446";
+        if (/^40(7\d{8})$/.test(canonicalDigits)) {
+          const local = "0" + canonicalDigits.slice(2);
+          return `${local.slice(0, 4)} ${local.slice(4, 7)} ${local.slice(7)}`;
+        }
+        if (/^40([23]\d{8})$/.test(canonicalDigits)) {
+          const local = "0" + canonicalDigits.slice(2);
+          return `${local.slice(0, 4)} ${local.slice(4, 7)} ${local.slice(7)}`;
+        }
+        return "+" + canonicalDigits.replace(/(\d{3})(?=\d)/g, "$1 ").trim();
+      }
+
+      function detectLineInfo(canonicalDigits, countryCode) {
+        if (countryCode === "40" && canonicalDigits.startsWith("40")) {
+          const local = "0" + canonicalDigits.slice(2);
+          if (/^07\d{8}$/.test(local)) {
+            return {
+              lineType: "Mobil",
+              lineBadgeClass: "bg-blue-600 text-white",
+              prefixHint: `Prefix ${local.slice(0, 4)} (estimare)`
+            };
+          }
+          if (/^0[23]\d{8}$/.test(local)) {
+            return {
+              lineType: "Fix",
+              lineBadgeClass: "bg-indigo-600 text-white",
+              prefixHint: `Prefix ${local.slice(0, 3)} (estimare)`
+            };
+          }
+          if (/^080[028]\d{6}$/.test(local)) {
+            return {
+              lineType: "Serviciu / Gratuit",
+              lineBadgeClass: "bg-emerald-600 text-white",
+              prefixHint: `Prefix ${local.slice(0, 4)} (estimare)`
+            };
+          }
+        }
+        return {
+          lineType: "Internațional",
+          lineBadgeClass: "bg-indigo-700 text-white",
+          prefixHint: `Indicativ +${countryCode}`
+        };
+      }
+
+      function escapeHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function formatDateRo(isoStr) {
+        const d = isoStr ? new Date(isoStr) : new Date();
+        if (Number.isNaN(d.getTime())) return "acum";
+        return d.toLocaleString("ro-RO", {
+          day: "2-digit",
+          month: "short",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      }
+
+      function localKey(phone) {
+        return `${STORAGE_PREFIX}data_${phone}`;
+      }
+
+      function readLocalData(phone) {
+        try {
+          const raw = localStorage.getItem(localKey(phone));
+          if (!raw) return { views: 0, votes: {}, comments: [] };
+          const parsed = JSON.parse(raw);
+          return {
+            views: Number(parsed.views) || 0,
+            votes: parsed.votes && typeof parsed.votes === "object" ? parsed.votes : {},
+            comments: Array.isArray(parsed.comments) ? parsed.comments : []
+          };
+        } catch {
+          return { views: 0, votes: {}, comments: [] };
+        }
+      }
+
+      function writeLocalData(phone, data) {
+        try {
+          localStorage.setItem(localKey(phone), JSON.stringify(data));
+        } catch {}
+      }
+
+      function getOwnCommentIds() {
+        try {
+          return new Set(JSON.parse(localStorage.getItem(OWN_COMMENTS_KEY) || "[]"));
+        } catch {
+          return new Set();
+        }
+      }
+
+      function saveOwnCommentId(id) {
+        const set = getOwnCommentIds();
+        set.add(String(id));
+        try {
+          localStorage.setItem(OWN_COMMENTS_KEY, JSON.stringify(Array.from(set).slice(-100)));
+        } catch {}
+      }
+
+      function addToHistory(phone) {
+        try {
+          const current = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+          const next = [phone, ...current.filter((item) => item !== phone)].slice(0, 8);
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+        } catch {}
+        renderHistory();
+      }
+
+      function setSyncBadge(isApi) {
+        const badge = document.getElementById("sync-badge");
+        if (isApi) {
+          badge.textContent = "● Sincronizat API";
+          badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold shrink-0";
+        } else {
+          badge.textContent = "● Mod local";
+          badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium shrink-0";
+        }
+      }
+
+      function computeDominantCategory(votes) {
+        let best = null;
+        let maxCount = 0;
+        for (const cat of CATEGORIES) {
+          const c = Number(votes[cat.key]) || 0;
+          if (c > maxCount) {
+            maxCount = c;
+            best = cat;
+          }
+        }
+        return maxCount > 0 ? { category: best, count: maxCount } : null;
+      }
+
+      function updateSeoAndMeta(formattedPhone) {
+        const title = `${formattedPhone} (${state.countryName}) — Cine sună? | VerificApel`;
+        const desc = `Verifică numărul ${formattedPhone} (${state.countryName}) pe VerificApel: tip linie, procente de clasificare și experiențe raportate de utilizatori.`;
+        document.getElementById("page-title").textContent = title;
+        const metaDesc = document.getElementById("page-description");
+        if (metaDesc) metaDesc.setAttribute("content", desc);
+
+        const jsonLdEl = document.getElementById("json-ld");
+        if (jsonLdEl) {
+          jsonLdEl.textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": title,
+            "description": desc,
+            "inLanguage": "ro"
+          });
+        }
+      }
+
+      function renderAll() {
+        const formatted = formatPhoneDisplay(state.phone);
+        const lineInfo = detectLineInfo(state.phone, state.countryCode);
+        const totalVotes = CATEGORIES.reduce((sum, c) => sum + (Number(state.votes[c.key]) || 0), 0);
+        const dominant = computeDominantCategory(state.votes);
+
+        document.getElementById("display-phone").textContent = formatted;
+        document.getElementById("phone-input").value = formatted;
+
+        const countryBadge = document.getElementById("country-badge");
+        countryBadge.innerHTML = `<span>${escapeHtml(state.flag)}</span><span>${escapeHtml(state.countryName)}</span>`;
+
+        const lineBadge = document.getElementById("line-type-badge");
+        lineBadge.textContent = lineInfo.lineType;
+        lineBadge.className = `inline-flex items-center px-3 py-1 rounded-md text-xs font-bold ${lineInfo.lineBadgeClass}`;
+
+        document.getElementById("prefix-hint-badge").textContent = lineInfo.prefixHint;
+
+        const ratingBadge = document.getElementById("rating-badge");
+        const ratingSubtext = document.getElementById("rating-subtext");
+
+        if (dominant) {
+          const pct = totalVotes > 0 ? Math.round((dominant.count / totalVotes) * 100) : 0;
+          ratingBadge.textContent = dominant.category.badgeText;
+          ratingBadge.className = `inline-flex items-center px-3 py-1 rounded-md text-xs font-bold ${dominant.category.badgeClass}`;
+          ratingSubtext.textContent = `Evaluare dominantă: ${dominant.category.label} (${pct}% din ${totalVotes} ${totalVotes === 1 ? "vot" : "voturi"})`;
+        } else {
+          ratingBadge.textContent = "Neutru";
+          ratingBadge.className = "inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-amber-400 text-slate-950";
+          ratingSubtext.textContent = "Fără evaluare";
+        }
+
+        document.getElementById("views-count").textContent = Number(state.views || 0).toLocaleString("ro-RO");
+        document.getElementById("comments-count").textContent = Number(state.comments.length || 0).toLocaleString("ro-RO");
+        document.getElementById("comments-badge").textContent = `${state.comments.length} ${state.comments.length === 1 ? "mesaj" : "mesaje"}`;
+        document.getElementById("menu-comment-count").textContent = String(state.comments.length);
+        document.getElementById("total-votes-label").textContent = `${totalVotes} ${totalVotes === 1 ? "vot" : "voturi"}`;
+
+        renderCategoryButtons(totalVotes);
+        renderComments();
+        updateSeoAndMeta(formatted);
+      }
+
+      function renderCategoryButtons(totalVotes) {
+        const container = document.getElementById("category-buttons");
+        container.innerHTML = CATEGORIES.map((cat) => {
+          const count = Number(state.votes[cat.key]) || 0;
+          const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+          const isSelected = state.activeVote === cat.key;
+          const styleClass = isSelected ? cat.activeClass : cat.btnClass;
+
+          return `
+            <button
+              type="button"
+              data-category="${cat.key}"
+              aria-pressed="${isSelected ? "true" : "false"}"
+              class="vote-btn relative overflow-hidden w-full min-h-[52px] px-3.5 py-2.5 rounded-xl border-2 bg-white flex items-center justify-between gap-2 text-left transition cursor-pointer ${styleClass}"
+            >
+              <span
+                class="pointer-events-none absolute inset-y-0 left-0 opacity-15 transition-all duration-300 ${cat.barClass}"
+                style="width: ${pct}%"
+              ></span>
+              <span class="relative flex items-center gap-2 font-semibold text-sm">
+                <span aria-hidden="true">${cat.icon}</span>
+                <span>${escapeHtml(cat.label)}</span>
+              </span>
+              <span class="relative text-xs font-bold tabular-nums px-2 py-0.5 rounded-md bg-white/80 border border-current/15">
+                ${pct}% (${count})
+              </span>
+            </button>
+          `;
+        }).join("");
+      }
+
+      function renderComments() {
+        const listEl = document.getElementById("comments-list");
+        const ownIds = getOwnCommentIds();
+
+        if (!state.comments.length) {
+          listEl.innerHTML = `
+            <div class="rounded-xl border border-dashed border-slate-200 p-4 text-center text-sm text-slate-400">
+              Încă nu există comentarii pentru acest număr. Poți adăuga prima observație utilă mai sus.
+            </div>
+          `;
+          return;
+        }
+
+        const catMap = Object.fromEntries(CATEGORIES.map((c) => [c.key, c]));
+
+        listEl.innerHTML = state.comments
+          .map((item) => {
+            const cat = catMap[item.category] || catMap.neutru;
+            const isOwn = ownIds.has(String(item.id));
+            return `
+              <article class="rounded-xl border border-slate-200/90 bg-slate-50/70 p-3 space-y-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded ${cat.badgeClass}">
+                    <span>${cat.icon}</span>
+                    <span>${escapeHtml(cat.label)}</span>
+                  </span>
+                  <div class="flex items-center gap-2 text-[11px] text-slate-400">
+                    <time>${escapeHtml(formatDateRo(item.created_at || item.createdAt))}</time>
+                    ${
+                      isOwn && !state.apiOnline
+                        ? `<button type="button" data-delete-id="${escapeHtml(String(item.id))}" class="delete-comment-btn text-rose-600 hover:underline font-semibold cursor-pointer">Șterge</button>`
+                        : ""
+                    }
+                  </div>
+                </div>
+                <p class="text-sm text-slate-800 leading-relaxed break-words">${escapeHtml(item.text)}</p>
+              </article>
+            `;
+          })
+          .join("");
+      }
+
+      function renderHistory() {
+        const container = document.getElementById("recent-phones");
+        let list = [];
+        try {
+          list = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+        } catch {}
+
+        if (!list.length) {
+          container.innerHTML = `<span class="text-xs text-slate-400">Niciun număr verificat încă.</span>`;
+          return;
+        }
+
+        container.innerHTML = list
+          .map((ph) => {
+            const active = ph === state.phone;
+            const info = parsePhone(ph) || { flag: "📞" };
+            return `
+              <button
+                type="button"
+                data-history-phone="${escapeHtml(ph)}"
+                class="history-btn px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                  active
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+                }"
+              >
+                ${escapeHtml(info.flag)} ${escapeHtml(formatPhoneDisplay(ph))}
+              </button>
+            `;
+          })
+          .join("");
+      }
+
+      function validateComment(rawText) {
+        const clean = String(rawText || "").replace(/\s+/g, " ").trim();
+        if (clean.length < 5) return "Comentariul trebuie să aibă cel puțin 5 caractere.";
+        if (clean.length > 400) return "Comentariul poate avea maximum 400 de caractere.";
+        if (/https?:\/\/|www\./i.test(clean)) return "Linkurile nu sunt permise în comentarii.";
+        if (/(.)\1{6,}/.test(clean)) return "Evită caracterele repetitive.";
+        if (/\b0[237]\d{8}\b|\b\d{13}\b/.test(clean.replace(/\s+/g, ""))) {
+          return "Nu include alte numere de telefon sau date personale (ex: CNP).";
+        }
+        return null;
+      }
+
+      async function loadPhone(rawPhone) {
+        const parsed = parsePhone(rawPhone) || parsePhone(DEFAULT_PHONE);
+        state.phone = parsed.phone;
+        state.countryCode = parsed.countryCode;
+        state.countryName = parsed.countryName;
+        state.flag = parsed.flag;
+
+        document.getElementById("vote-feedback").textContent = "";
+        document.getElementById("comment-error").textContent = "";
+
+        const url = new URL(window.location.href);
+        url.searchParams.set("phone", parsed.phone);
+        window.history.replaceState({}, "", url.toString());
+
+        addToHistory(parsed.phone);
+
+        if (API_BASE) {
+          try {
+            const resp = await fetch(`${API_BASE}/phone?phone=${encodeURIComponent(parsed.phone)}`, {
+              headers: { Accept: "application/json" }
+            });
+            if (resp.ok) {
+              const data = await resp.json();
+              state.apiOnline = true;
+              state.countryCode = data.countryCode || parsed.countryCode;
+              state.countryName = data.countryName || parsed.countryName;
+              state.flag = data.flag || parsed.flag;
+              state.views = Number(data.views) || 1;
+              state.votes = data.votes && typeof data.votes === "object" ? data.votes : {};
+              state.comments = Array.isArray(data.comments) ? data.comments : [];
+              setSyncBadge(true);
+              renderAll();
+              return;
+            }
+          } catch {}
+        }
+
+        state.apiOnline = false;
+        setSyncBadge(false);
+        const local = readLocalData(parsed.phone);
+        local.views = Number(local.views || 0) + 1;
+        writeLocalData(parsed.phone, local);
+
+        state.views = local.views;
+        state.votes = local.votes;
+        state.comments = local.comments;
+        renderAll();
+      }
+
+      async function handleVote(categoryKey) {
+        const feedbackEl = document.getElementById("vote-feedback");
+        const catObj = CATEGORIES.find((c) => c.key === categoryKey);
+        if (!catObj) return;
+
+        if (state.apiOnline && API_BASE) {
+          try {
+            const resp = await fetch(`${API_BASE}/vote`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                phone: state.phone,
+                category: categoryKey,
+                voterId: getVoterId()
+              })
+            });
+            if (resp.ok) {
+              const data = await resp.json();
+              state.votes = data.votes && typeof data.votes === "object" ? data.votes : state.votes;
+              state.activeVote = data.activeCategory || null;
+              feedbackEl.textContent = state.activeVote
+                ? `Clasificare salvată: ${catObj.label}.`
+                : "Clasificarea ta a fost eliminată.";
+              renderAll();
+              return;
+            }
+          } catch {}
+        }
+
+        const local = readLocalData(state.phone);
+        const prevVote = state.activeVote;
+        if (prevVote && local.votes[prevVote]) {
+          local.votes[prevVote] = Math.max(0, Number(local.votes[prevVote]) - 1);
+        }
+
+        if (prevVote === categoryKey) {
+          state.activeVote = null;
+          feedbackEl.textContent = "Clasificarea ta locală a fost eliminată.";
+        } else {
+          local.votes[categoryKey] = (Number(local.votes[categoryKey]) || 0) + 1;
+          state.activeVote = categoryKey;
+          feedbackEl.textContent = `Clasificare salvată local: ${catObj.label}.`;
+        }
+
+        writeLocalData(state.phone, local);
+        state.votes = local.votes;
+        renderAll();
+      }
+
+      async function handleCommentSubmit(e) {
+        e.preventDefault();
+        const inputEl = document.getElementById("comment-input");
+        const catEl = document.getElementById("comment-category");
+        const errEl = document.getElementById("comment-error");
+
+        const text = inputEl.value.replace(/\s+/g, " ").trim();
+        const category = catEl.value;
+        const validationError = validateComment(text);
+
+        if (validationError) {
+          errEl.textContent = validationError;
+          return;
+        }
+        errEl.textContent = "";
+
+        if (state.apiOnline && API_BASE) {
+          try {
+            const resp = await fetch(`${API_BASE}/comment`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                phone: state.phone,
+                category,
+                text
+              })
+            });
+            const data = await resp.json().catch(() => ({}));
+            if (resp.ok && data.comment) {
+              saveOwnCommentId(data.comment.id);
+              state.comments = [data.comment, ...state.comments];
+              inputEl.value = "";
+              renderAll();
+              return;
+            }
+            if (data.error) {
+              errEl.textContent = data.error;
+              return;
+            }
+          } catch {}
+        }
+
+        const newComment = {
+          id: "c_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+          category,
+          text,
+          created_at: new Date().toISOString()
+        };
+        const local = readLocalData(state.phone);
+        local.comments = [newComment, ...local.comments];
+        writeLocalData(state.phone, local);
+        saveOwnCommentId(newComment.id);
+
+        state.comments = local.comments;
+        inputEl.value = "";
+        renderAll();
+      }
+
+      document.getElementById("year").textContent = String(new Date().getFullYear());
+
+      const menuToggle = document.getElementById("menu-toggle");
+      const mobileMenu = document.getElementById("mobile-menu");
+      menuToggle.addEventListener("click", () => {
+        const isOpen = !mobileMenu.classList.contains("hidden");
+        mobileMenu.classList.toggle("hidden", isOpen);
+        menuToggle.setAttribute("aria-expanded", String(!isOpen));
+      });
+
+      document.querySelectorAll(".nav-link").forEach((link) => {
+        link.addEventListener("click", () => {
+          mobileMenu.classList.add("hidden");
+          menuToggle.setAttribute("aria-expanded", "false");
+        });
+      });
+
+      document.getElementById("search-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const raw = document.getElementById("phone-input").value;
+        const parsed = parsePhone(raw);
+        if (!parsed) {
+          document.getElementById("vote-feedback").textContent = "Introdu un număr de telefon valid (minim 7 cifre).";
+          return;
+        }
+        loadPhone(parsed.phone);
+      });
+
+      document.getElementById("category-buttons").addEventListener("click", (e) => {
+        const btn = e.target.closest(".vote-btn");
+        if (!btn) return;
+        handleVote(btn.getAttribute("data-category"));
+      });
+
+      document.getElementById("comment-form").addEventListener("submit", handleCommentSubmit);
+
+      document.getElementById("comments-list").addEventListener("click", (e) => {
+        const delBtn = e.target.closest(".delete-comment-btn");
+        if (!delBtn || state.apiOnline) return;
+        const idToDelete = delBtn.getAttribute("data-delete-id");
+        const local = readLocalData(state.phone);
+        local.comments = local.comments.filter((c) => String(c.id) !== idToDelete);
+        writeLocalData(state.phone, local);
+        state.comments = local.comments;
+        renderAll();
+      });
+
+      document.getElementById("recent-phones").addEventListener("click", (e) => {
+        const btn = e.target.closest(".history-btn");
+        if (!btn) return;
+        loadPhone(btn.getAttribute("data-history-phone"));
+      });
+
+      document.getElementById("clear-history-btn").addEventListener("click", () => {
+        try {
+          localStorage.removeItem(HISTORY_KEY);
+        } catch {}
+        renderHistory();
+      });
+
+      document.getElementById("copy-phone-btn").addEventListener("click", async () => {
+        const label = document.getElementById("copy-phone-label");
+        try {
+          await navigator.clipboard.writeText("+" + state.phone);
+          label.textContent = "Copiat!";
+          setTimeout(() => (label.textContent = "Copiază nr."), 1500);
+        } catch {}
+      });
+
+      document.getElementById("copy-link-btn").addEventListener("click", async () => {
+        const label = document.getElementById("copy-link-label");
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          label.textContent = "Copiat!";
+          setTimeout(() => (label.textContent = "Copiază link"), 1500);
+        } catch {}
+      });
+
+      document.getElementById("share-btn").addEventListener("click", async () => {
+        const shareData = {
+          title: `${formatPhoneDisplay(state.phone)} — VerificApel`,
+          text: `Verifică numărul ${formatPhoneDisplay(state.phone)} (${state.countryName}) pe VerificApel.`,
+          url: window.location.href
+        };
+        if (navigator.share) {
+          try {
+            await navigator.share(shareData);
+          } catch {}
+        } else {
+          try {
+            await navigator.clipboard.writeText(window.location.href);
+            document.getElementById("vote-feedback").textContent = "Link copiat pentru distribuire.";
+          } catch {}
+        }
+      });
+
+      const params = new URLSearchParams(window.location.search);
+      const initialPhone = params.get("phone") || params.get("nr") || DEFAULT_PHONE;
+      loadPhone(initialPhone);
+    })();
+  </script>
+</body>
+</html>
